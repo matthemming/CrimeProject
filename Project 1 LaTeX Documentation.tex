@@ -57,30 +57,41 @@
 
 \section{Executive Summary} \label{Executive Summary}
 
-There is a correlation between median house price and six of the fifteen crime time recorded in London between 2011 and 2016. Four types of crime are more prevalent in less expensive areas. These are:
+There is a correlation between median house price and six of the fifteen crime types recorded in London between 2011 and 2016. Four types of crime are more prevalent in less expensive areas. These are:
 \begin{itemize}
 \item Anti-social Behaviour - \textbf{36\% higher} in least expensive areas
 \item Criminal Damage and Arson	    - \textbf{74\% higher} in least expensive areas
 \item Robbery			    - \textbf{52\% higher} in least expensive areas
 \item Violence and Sexual Offences - \textbf{94\% higher} in least expensive areas
 \end{itemize}
-Two types of crime are more prevalent in less expensive areas. These are:
+Two types of crime are more prevalent in more expensive areas. These are:
 \begin{itemize}
 \item Bicycle Theft 			   - \textbf{211\% higher} in most expensive areas
 \item Theft from the Person 	   - \textbf{161\% higher} in most expensive areas
 \end{itemize}
 
 No correlation was found between house price and the remaining nine crime types.
+\newline 
+
+While it would be a stretch to confidently say how funds could be allocated to best reduce crime based solely on these findings, the series of recommendations has been made based on the results of the analysis includes:
+
+\begin{itemize}
+\item Increasing the public awareness of these crimes in these areas most affected by them
+\item Increasing the provision of secure bike storage facilities in more expensive areas
+\item Increasing spending on security in areas of lower house price
+\end{itemize}
+
+
+\newpage
 %_____________________________________________________________________________________________________
 \section{Brief}
 
 The aim of this analysis is to identify trends in crime around London in order to inform decisions regarding the allocation of policing budget. The specific area of interest of this report is the relationship between house prices and crime. This relationship will be examined at the level of Lower Layer Super Output Area (LSOA) over the period between 2011 and 2016. 
 
-\newpage
 %_____________________________________________________________________________________________________
 \section{Background and Hypothesis} \label{Background and Hypothesis}
 
-London has a broad variation in the median house price of its LSOAs. In 2016 several LSOAs in Haringey, Hounslow, Bexley and Brent had median house prices around a quarter of the London average, while at the other end of the spectrum the median house prices in LSOAs in Westminster and Kensington and Chelsea was well over 8 times the London average. This disparity in wealth is likely to have an effect on the types of crimes that occur in these areas (for readers unfamiliar with London's boroughs these are shown in figures \ref{fig:NorthBoroughs} and \ref{fig:SouthBoroughs}). However, it stands to reason that not all crime types will correlate in the same way with house price, e.g. one might expect burglary to be more common in areas of wealth but possession of weapons, often associated with gang activity, to be more common in less expensive areas.
+London has a broad variation in the median house price of its LSOAs. In 2016 several LSOAs in Haringey, Hounslow, Bexley and Brent had median house prices around a quarter of the London average, while at the other end of the spectrum the median house prices in LSOAs in Westminster and Kensington and Chelsea were well over 8 times the London average (for readers unfamiliar with London's boroughs these are shown in figures \ref{fig:NorthBoroughs} and \ref{fig:SouthBoroughs}). This disparity in wealth is likely to have an effect on the types of crimes that occur in these areas. However, it stands to reason that not all crime types will correlate in the same way with house price, e.g. one might expect burglary to be more common in areas of wealth but possession of weapons, often associated with gang activity, to be more common in less expensive areas.
 \newline
 
 As such the hypothesis that will be tested during this analysis is:
@@ -113,11 +124,12 @@ The data used in this study has been gathered from a variety of sources includin
 \begin{itemize}
 \item Police data archives
 \item The Office for National Statistics
-\item Government geographical data
+\item Government geographical and census data
 \item Home.co.uk, an independent compiler of data on UK residential property sales
 \end{itemize}
 
 For an in depth description of these data sources, the steps taken in modelling the data and the structure of the final data model please see the appendices of this report.
+
 
 %_____________________________________________________________________________________________________
 \section{Engineering} \label{Engineering}
@@ -142,7 +154,7 @@ It is reasonable to assume that, after its phasing out, 'Violent Crime' was merg
 
 \subsection{LSOA House Prices}
 
-The analysis is being conducted over the period between 2011 and 2016 but over this period there has been a general increase in house price across almost all London LSOAs. If comparisons were to be drawn between LSOAs in 2011 and LSOAs in 2016 with no adjustment for this then there would be a false equivalence between medium-high priced areas in 2011 and medium-low priced areas in 2016.
+Over the period between 2011 and 2016 there has been a general increase in house price across almost all London LSOAs. If comparisons were to be drawn between LSOAs in 2011 and LSOAs in 2016 with no adjustment for this then there would be a false equivalence between medium-high priced areas in 2011 and medium-low priced areas in 2016.
 
 \begin{table}[H]
   \begin{center}
@@ -188,7 +200,7 @@ On profiling the numbers of crimes that occurred in each LSOA it was found that 
 \begin{itemize}
 \item Airports
 \begin{itemize}
-\item Heathrow and London City airports exhibited large number of crime reports, possibly due to the large size of the LSOAs, the large numbers of trough traffic relative to the LSOA populations and the increased police presence
+\item Heathrow and London City airports exhibited large number of crime reports, possibly due to the large size of the LSOAs, the large numbers of through traffic relative to the LSOA populations and the increased police presence
 \end{itemize}
 
 \item 'Tourist' areas in central London
@@ -206,7 +218,7 @@ On profiling the numbers of crimes that occurred in each LSOA it was found that 
 \end{itemize}
 \bigskip
 
-In order to define a cut-off point for the number of crimes in an LSOA that should trigger its exclusion an initial limit of 2920 crimes was set using the rule of thumb that states that outliers can be defined as values that fall outside the range of 3 times the interquartile range above the third quartile value. On closer inspection of the LSOAs that were excluded by the implementation of this limit it was found that a large number were purely residential areas with no obvious special characteristics. Given the nature of the domain there are likely to be some genuine residential areas that have ‘abnormally’ high crime rates, so the cut-off point was increased to the point where a minimal amount of genuine residential areas were excluded (5000 crimes in the period between 2011 and 2016).
+In order to define a cut-off point for the number of crimes in an LSOA that should trigger its exclusion an initial limit of 2920 crimes was set using the rule of thumb that states that outliers can be defined as values that fall outside the limit of the third quartile plus 3 times the interquartile range. On closer inspection of the LSOAs that were excluded by the implementation of this limit it was found that a large number were purely residential areas with no obvious special characteristics. Given the nature of the domain there are likely to be some genuine residential areas that have ‘abnormally’ high crime rates, so the cut-off point was increased to the point where a minimal amount of genuine residential areas were excluded (5000 crimes in the period between 2011 and 2016).
 \newline
 
 Figure \ref{fig:ExcludedLSOAsMap} shows the LSOAs that were excluded by this criteria.
@@ -218,12 +230,13 @@ Figure \ref{fig:ExcludedLSOAsMap} shows the LSOAs that were excluded by this cri
 \end{figure}
 \bigskip
 
+\newpage
 %_____________________________________________________________________________________________________
 \section{Analysis} \label{Analysis}
 
 \subsection{House Price Profile}
 
-Figure \ref{fig:HPBandMap} shows the house price profile across London in terms of the average normalised house price of each LSOA. The lighter areas have lower relative prices while the darker areas have higher relative prices. The major patches of lower house prices are in the boroughs of Redbridge, Barking and Dagenham, Newham, Greenwich and Bexley to the east, Enfield and Haringey to the north, Croydon and Merton to the south and Hounslow, Ealing and Hillingdon to the west. The areas of higher house prices are concentrated in central London and extend westward towards Richmond and northwards in the Camden-Hampstead-Highgate corridor.
+Figure \ref{fig:HPBandMap} shows the house price profile across London in terms of the average normalised house price of each LSOA. The lighter areas have lower relative prices while the darker areas have higher relative prices. The major patches of lower house prices are in the boroughs of Redbridge, Barking and Dagenham, Newham, Greenwich and Bexley to the east, Enfield and Haringey to the north, Croydon and Merton to the south and Hounslow, Ealing and Hillingdon to the west. The areas of higher house prices are concentrated in central London and extend westwards towards Richmond and northwards in the Camden-Hampstead-Highgate corridor.
 
 
 \begin{figure}[H]
@@ -247,8 +260,8 @@ As already mentioned, an individual LSOA can move into different house price bin
 \end{figure}
 \bigskip
 
-A profile of the size of these house price bin moves can be seen in figure \ref{fig:RangeOfBinMoves}. The majority of LSOAs had a variation in normalised house price of between 0 and 0.2. A very small number of LSOAs have varied over far higher ranges but it is unclear whether this is a genuine pattern or due to small numbers of sales in these LSOAs, allowing abnormally cheap or expensive sales to skew the median
-\newline
+A profile of the size of these house price bin moves can be seen in figure \ref{fig:RangeOfBinMoves}. The majority of LSOAs had a variation in normalised house price of between 0 and 0.2. A very small number of LSOAs have varied over far higher ranges but it is unclear whether this is a genuine pattern or due to small numbers of sales in these LSOAs, allowing abnormally cheap or expensive sales to skew the median.
+
 The effect that these price variations has on crime has not been directly analysed in this study and is a possible area for further investigation (see section \ref{Limitations of this Study and Suggestions for Further Analysis}).
 
 \begin{figure}[H]
@@ -261,9 +274,8 @@ The effect that these price variations has on crime has not been directly analys
 
 \subsection{Relationships between House Price and Different Crime Types} \label{Relationships between House Price and Different Crime Types}
 The current LSOA boundaries were established in 2011 based on the division of areas of approximately equal population but there is some discrepancy in LSOA population based on slight differences at the time of boundary definition and variations in rates of population change since the boundaries were defined. To account for any differences in crime numbers that arise from larger populations in some LSOAs the metric selected for comparison is the crime rate per 1000 residents.
-\newline
 
-The fifteen crime types present in the dataset have analysed for correlation with the bins of normalised house price. Of these fifteen, six have shown a moderate to strong correlation (r-squared value of over 0.5). Of these, four have been found to be negatively correlated with normalised house price (see figure \ref{fig:NegCorr}):
+There fifteen crime types present in the dataset have each been analysed for correlation with the bins of normalised house price. Of these fifteen, six have shown a moderate to strong correlation (r-squared value of over 0.5). Of these, four have been found to be negatively correlated with normalised house price (see figure \ref{fig:NegCorr}):
 \begin{itemize}
 \item Anti-social Behaviour (r-squared = -0.85)
 \item Criminal Damage and Arson (r-squared = -0.81)
@@ -313,7 +325,6 @@ Two crime types have been found to be positively correlated with normalised hous
 \subsection{Geographical Trends in Crime Rate Variations}
 
 Although the crime types discussed in \ref{Relationships between House Price and Different Crime Types} show similar correlations to normalised house price, when examined in a geographical context the patterns are more varied.
-\newline 
 
 The following figures show the ranking of London's LSOAs for each of these crime types. Red LSOAs are higher ranked, i.e. have higher crime rates, and green LSOAs are lower ranked. Percentage differences in crime rates have been calculated by taking the difference between the average crime rates in the three cheapest and the three most expensive house price bins.
 
@@ -376,7 +387,7 @@ Figure \ref{fig:RobberyMap} shows the crime rate ranking of LSOAs for Robbery, w
 
 LSOAs that rank highly for Robbery are well distributed across central areas as well as the north-west, north-east and south of the city. Expensive areas in Richmond rank low, as do those in the north-east, but apart from these there is not an obvious pattern concurrent with the negative correlation to normalised house price, with the highest concentration of highly ranked LSOAs coming in the medium-high priced Southwark and Lambeth. 
 
-What is perhaps surprising is that, in contrast to other forms of theft examined in this report, the Robbery is more prevalent in less expensive areas. As robbery is defined as an offence where a person uses force to steal and is therefore likely to carry a greater penalty than less aggressive forms of theft, the possible higher security in more expensive areas may act as a greater deterrent to would-be criminals.
+What is perhaps surprising is that, in contrast to other forms of theft examined in this report, Robbery is more prevalent in less expensive areas. As robbery is defined as an offence where a person uses force to steal and is therefore likely to carry a greater penalty than less aggressive forms of theft, the possibly higher level of security in more expensive areas may act as a greater deterrent to would-be criminals.
 \newline
 
 \subsubsection{Theft from the Person}
@@ -391,7 +402,7 @@ What is perhaps surprising is that, in contrast to other forms of theft examined
 Figure \ref{fig:TheftFromPerMap} shows the crime rate ranking of LSOAs for Theft from the Person, which has a rate of 1.7 crimes per 1000 residents across the whole of London and a 96\% higher crime rate in the most expensive LSOAs than in the cheapest.
 \newline 
 
-Theft from the Person is has a positive correlation with normalised house price and the map shows a clear concentration of high ranked LSOAs in the expensive central areas. What is less in keeping with this correlation is the low ranking of the expensive areas to the north and towards Richmond, which perhaps explain the scattered top end of the graph in figure \ref{fig:PosCorr} and the relatively weak r-squared value of 0.55. It is possible that these quieter, less accessible areas offer fewer opportunities for theft but this relationship would need to be studied further.
+Theft from the Person has a positive correlation with normalised house price and the map shows a clear concentration of high ranked LSOAs in the expensive central areas. What is less in keeping with this correlation is the low ranking of the expensive areas to the north and towards Richmond, which perhaps explain the scattered top end of the graph in figure \ref{fig:PosCorr} and the relatively weak r-squared value of 0.55. It is possible that these quieter, less accessible areas offer fewer opportunities for theft but this relationship would need to be studied further.
 \newline
 
 \subsubsection{Violence and Sexual Offences}
@@ -428,7 +439,7 @@ In order to make more detailed recommendations it would be necessary to obtain m
 
 Crime prevention is an inherently complex issue that is affected by a broad range of factors. This study has found a correlation between house price and the crime rate of certain crime types but it should be carefully noted that this does not necessarily imply causation, e.g. it is unlikely that house price is the sole contributing factor to the higher rates of violent crime in less expensive areas of the city. There is likely to be a host of factors at play that may or may not be related to house price. The key limitations of this study come from the lack of information about these factors. 
 
-Most of the proposed explanations rely on the assumption that less expensive areas have a lower level of security and are therefore more prone to certain types of crimes. There is also an assumption that as you move away from the centre areas become more residential and see less pedestrian traffic. While these assumptions seem logical there are likely to be exceptions and it would be helpful to obtain some data verify whether these exceptions match up to atypical patterns in the crime rates. 
+Most of the proposed explanations for the trends identified rely on the assumption that less expensive areas have a lower level of security and are therefore more prone to certain types of crimes. There is also an assumption that as you move away from the centre areas become more residential and see less pedestrian traffic. While these assumptions seem logical there are likely to be exceptions and it would be helpful to obtain some data verify whether these exceptions match up to atypical patterns in the crime rates. 
 
 Some of the trends between normalised house price and crime types examined in figures \ref{fig:NegCorr} and \ref{fig:PosCorr} display some instability around the higher house price brackets. This may be due to the relatively small number of LSOAs in some of the higher priced bins and could possibly be rectified by redefining the bins to make the distribution of LSOAs more even.
 
@@ -450,7 +461,7 @@ Some areas to consider for future study to build on the findings of this analysi
 \section{Appendix} \label{Appendix}
 
 \subsection{Data Sources}
-The data used in this study was gathered from various sources and imported into SQL for analysis. As the crime records were made up of almost 100 monthly record files these were imported via an automated foreach loop process in SQL Server Data Tools for Visual Studio. The pther data files were imported via the quick import wizard with the exception of the geographical shape files, which were imported directly into Tableau. The data was sourced from the following locations:
+The data used in this study was gathered from various sources and imported into SQL for analysis. As the crime records were made up of almost 100 monthly record files these were imported via an automated foreach loop process in SQL Server Data Tools for Visual Studio. The other data files were imported via the quick import wizard with the exception of the geographical shape files, which were imported directly into Tableau. The data was sourced from the following locations:
 \newline
 
 \noindent
@@ -498,7 +509,7 @@ Census data has been sourced from the London Datastore. The data is available at
 \noindent
 \textbf{London Average House Prices}
 
-London average house price data has been sourced from the home.co.uk, an independent compiler of data on UK residential property
+London average house price data has been sourced from home.co.uk, an independent compiler of data on UK residential property
 sales. The data is available at:
 \newline
 \href{url}{https://www.home.co.uk/guides/}
@@ -514,7 +525,7 @@ sales. The data is available at:
 \end{center}
 \end{figure}
 
-Figure \ref{fig:ModelDiagram} shows a diagram of the dimensional model used in this analysis. The central fact table is the record of crimes in London. It contains several foreign keys that reference the primary keys in dimension tables for location, LSOA house prices, LSOA populationdate, outcome of the arrest, crime type and authority. These dimension tables have been enriched to varying extents to facilitate the analysis.
+Figure \ref{fig:ModelDiagram} shows a diagram of the dimensional model used in this analysis. The central fact table is the record of crimes in London. It contains several foreign keys that reference the primary keys in dimension tables for location, LSOA house prices, LSOA population, date, outcome of the arrest, crime type and authority. These dimension tables have been enriched to varying extents to facilitate the analysis.
 
 %__Code Snippets___________________________________________________________________________________________________
 \newpage
@@ -734,7 +745,7 @@ GO
 \noindent
 \textbf{DimDate Table}
 
-The DimDate table was created using a stored procedure that generated a table with dates as the first day of each month over a defined period:
+The DimDate table was created using a stored procedure that generated a table containing the first day of each month over a defined period:
 \begin{lstlisting}
 
 CREATE PROC Usp_BuildDimDate
@@ -987,7 +998,7 @@ REFERENCES [property].[LSOAHousePrices] (PriceID)
 \noindent
 \textbf{House Price Bin Movement Calculations}
 
-Most of the calculations and aggregations fr this anlysis were performed in Tableau but occasionally it proved much simpler to perform calculations in SQL and import the resulting data to Tableau. The information on the number of house price bins that the LSOAs moved between was one such case:
+Most of the calculations and aggregations for this analysis were performed in Tableau but occasionally it proved much simpler to perform calculations in SQL and import the resulting data to Tableau. The information on the number of house price bins that the LSOAs moved between was one such case:
 \begin{lstlisting}
 
 ;WITH cte
@@ -1024,7 +1035,7 @@ FROM cte2
 \noindent
 \textbf{Crime Numbers Outliers Calculations}
 
-The following code was used to determine which LSOAs shouls be excluded form the analysis based on the outlier formula Limit = 3 x Interquartile Range above the third Quartile:
+The following code was used to determine which LSOAs should be excluded from the analysis based on the outlier formula Limit = 3rd Quartile + 3 x Interquartile Range:
 \begin{lstlisting}
 
 ;WITH CTE1
@@ -1082,38 +1093,5 @@ ORDER BY CrimesInLSOA DESC
 Figure \ref{fig:TableauJoin} shows the joining of the main tables loaded into tableau. Additional data sources for the geographical data were loaded as separate data sources and merged.
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
