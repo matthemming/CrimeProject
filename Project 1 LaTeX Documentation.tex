@@ -1,0 +1,1119 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{floatrow}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+
+
+\definecolor{dkgreen}{rgb}{0,0.5,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{myred}{rgb}{1,0,0}
+
+%These are the parameters for listings, which is the package that formats the SQL code
+\lstset{frame=tb,
+  language=SQL,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{myred},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+%\usepackage[margin=1.5in]{geometry}
+\graphicspath{ {C:\Data\Project1CrimeData\Latex Report} }
+
+% The following settings are used for title generation and will show up in the
+% main document where the \maketitle command is set.
+\title{A Study of the Relationship between House Price and Crime Rate in London}
+\date{28/10/2018}
+\author{Matt Hemming}
+
+% Main document
+
+\begin{document} % The document starts here
+
+\maketitle % Creates the titlepage
+\pagenumbering{gobble} % Turns off page numbering
+\newpage % Starts a new page
+\pagenumbering{arabic} % Turns on page numbering
+\floatsetup[subfigure]{capbesideposition={left,center}}
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary} \label{Executive Summary}
+
+There is a correlation between median house price and six of the fifteen crime time recorded in London between 2011 and 2016. Four types of crime are more prevalent in less expensive areas. These are:
+\begin{itemize}
+\item Anti-social Behaviour - \textbf{36\% higher} in least expensive areas
+\item Criminal Damage and Arson	    - \textbf{74\% higher} in least expensive areas
+\item Robbery			    - \textbf{52\% higher} in least expensive areas
+\item Violence and Sexual Offences - \textbf{94\% higher} in least expensive areas
+\end{itemize}
+Two types of crime are more prevalent in less expensive areas. These are:
+\begin{itemize}
+\item Bicycle Theft 			   - \textbf{211\% higher} in most expensive areas
+\item Theft from the Person 	   - \textbf{161\% higher} in most expensive areas
+\end{itemize}
+
+No correlation was found between house price and the remaining nine crime types.
+%_____________________________________________________________________________________________________
+\section{Brief}
+
+The aim of this analysis is to identify trends in crime around London in order to inform decisions regarding the allocation of policing budget. The specific area of interest of this report is the relationship between house prices and crime. This relationship will be examined at the level of Lower Layer Super Output Area (LSOA) over the period between 2011 and 2016. 
+
+\newpage
+%_____________________________________________________________________________________________________
+\section{Background and Hypothesis} \label{Background and Hypothesis}
+
+London has a broad variation in the median house price of its LSOAs. In 2016 several LSOAs in Haringey, Hounslow, Bexley and Brent had median house prices around a quarter of the London average, while at the other end of the spectrum the median house prices in LSOAs in Westminster and Kensington and Chelsea was well over 8 times the London average. This disparity in wealth is likely to have an effect on the types of crimes that occur in these areas (for readers unfamiliar with London's boroughs these are shown in figures \ref{fig:NorthBoroughs} and \ref{fig:SouthBoroughs}). However, it stands to reason that not all crime types will correlate in the same way with house price, e.g. one might expect burglary to be more common in areas of wealth but possession of weapons, often associated with gang activity, to be more common in less expensive areas.
+\newline
+
+As such the hypothesis that will be tested during this analysis is:
+\newline
+
+\textit{The prevalence of different types of crime in an LSOA is related to the median house price of that LSOA}
+\newline
+
+The analysis section of this report will focus on examining house price data and crime records in order to ascertain whether this relationship exists.
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth]{NorthBoroughs.png}
+  \caption{Boroughs of North London}
+  \label{fig:NorthBoroughs}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth]{SouthBoroughs.png}
+  \caption{Boroughs of South London}
+  \label{fig:SouthBoroughs}
+\end{center}
+\end{figure}
+
+%_____________________________________________________________________________________________________
+\section{Modelling} \label{Modelling}
+The data used in this study has been gathered from a variety of sources including:
+\begin{itemize}
+\item Police data archives
+\item The Office for National Statistics
+\item Government geographical data
+\item Home.co.uk, an independent compiler of data on UK residential property sales
+\end{itemize}
+
+For an in depth description of these data sources, the steps taken in modelling the data and the structure of the final data model please see the appendices of this report.
+
+%_____________________________________________________________________________________________________
+\section{Engineering} \label{Engineering}
+In order to carry out meaningful analysis with the data it was necessary to perform a certain amount of pre-processing. The details of the data cleansing process will be given in the appendix but an overview of the main steps taken is described in this section. The time bounds of the analysis have been determined by the availability of the data:
+
+\begin{itemize}
+\item As LSOA boundaries were redefined in 2011 relevant house price and population data is not available for any earlier years
+\item In the analysis stage LSOAs have been compared based on the crime rate per 1000 residents. As population data was not available for years beyond 2016 this is the upper bound
+\end{itemize}
+\smallskip
+
+
+\subsection{Crime Types}
+In the London street crime data over the period between 2011 and 2016 there are 16 crime types recorded. On inspection of the earliest and latest occurrences of each of these crime types it is apparent that the use of certain crime types does not span the full time period:
+
+\begin{itemize}
+\item 'Violent Crime' and 'Public Disorder and Weapons' are phased out after April 2013
+\item 'Bicycle Theft', 'Possession of Weapons', 'Theft from the Person' and 'Public Order' 
+\end{itemize}
+\smallskip
+It is reasonable to assume that, after its phasing out, 'Violent Crime' was merged into 'Violence and Sexual Offences' so this has been merged in the database. It is less clear which of the phased in types the 'Public Disorder and Weapons' records should be included in so these records have been left as they are.
+
+\subsection{LSOA House Prices}
+
+The analysis is being conducted over the period between 2011 and 2016 but over this period there has been a general increase in house price across almost all London LSOAs. If comparisons were to be drawn between LSOAs in 2011 and LSOAs in 2016 with no adjustment for this then there would be a false equivalence between medium-high priced areas in 2011 and medium-low priced areas in 2016.
+
+\begin{table}[H]
+  \begin{center}
+    \caption{1st, median and 3rd quartile LSOA median house prices}
+    \label{tab:table1}
+    \begin{tabular}{|c|c c c|}
+    \hline
+      \textbf{Year} & \textbf{1st Quartile} & \textbf{Median} & \textbf{3rd Quartile} \\
+      \hline
+      2011 &  \pounds 220,000 & \pounds 273,500 & \pounds 375,500 \\ 
+  	  \hline
+  	  2012 & \pounds 227,500 & \pounds 285,000 & \pounds 392,000 \\
+  	  \hline
+  	  2013 & \pounds 239,000 & \pounds 305,250 & \pounds 430,000 \\
+  	  \hline
+  	  2014 & \pounds 270,000 & \pounds 360,000 & \pounds 499,588 \\
+  	  \hline
+  	  2015 & \pounds 312,500 & \pounds 402,500 & \pounds 550,000 \\
+  	  \hline
+  	  2016 & \pounds 350,000 & \pounds 442,500 & \pounds 595,000 \\
+      \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+As Table 1 shows, the third quartile LSOA in 2011 has a higher median house price than the first quartile LSOA in 2016 and there is considerable overlap between the years in between. To account for this increase in price across the board and to draw meaningful comparisons between LSOAs occupying similar relative market positions at different times, the median house prices for each LSOA-year have been normalised by dividing by the London median house price (LMHP) for that year. 
+\newline
+
+LSOA-years were grouped into bins to allow comparisons of trends across similarly priced areas. 
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{LSOAsInBins.png}
+  \caption{Distribution of LSOA-Years in normalised house price bins}
+  \label{fig:LSOAsInBins}
+\end{figure}
+
+
+Figure \ref{fig:LSOAsInBins} shows the distribution of LSOA-years within bins of 0.05. A very small proportion of LSOA-years fell below 0.25 x LMHP so the minimum bin was set at 0.25. At the other end of the scale, although there are a relatively high number of LSOA-years above 1.6 x LMHP, the distribution after this point becomes very sparse, with a very low number of LSOA-year in each 0.05 bin. To avoid potentially misleading trends emerging from any anomalous LSOAs in these brackets 1.6 was set as the maximum bin.
+
+
+\subsection{LSOA Crime Figures}
+On profiling the numbers of crimes that occurred in each LSOA it was found that certain LSOAs contained up to 30 times the average number of crimes for the period 2011 to 2016. On examining which LSOAs contributed these abnormally high crime figures it was found that they mainly constituted 'special case' areas. These include:
+\begin{itemize}
+\item Airports
+\begin{itemize}
+\item Heathrow and London City airports exhibited large number of crime reports, possibly due to the large size of the LSOAs, the large numbers of trough traffic relative to the LSOA populations and the increased police presence
+\end{itemize}
+
+\item 'Tourist' areas in central London
+\begin{itemize}
+\item These have high rates of crime and high relative house prices but are not typical residential areas. They also see much higher rates of certain types of crime than can be seen in typical residential areas and therefore skew the averages
+\end{itemize}
+
+\item Olympic Park / Westfield Stratford
+\begin{itemize}
+\item The LSOA boundaries were defined in 2011, prior to the conversion of the athletes' village into permanent residential housing and the further development of the surrounding area. As a result, the LSOAs that encompass the area now have a very high population (around five times the LSOA average). Coupled with the Westfield shopping centre adjacent to the residential area this is likely to be what contributes to inflated levels of crime.
+\end{itemize}
+
+\item Shopping Centres in Ealing, Croydon and Walthamstow
+
+\end{itemize}
+\bigskip
+
+In order to define a cut-off point for the number of crimes in an LSOA that should trigger its exclusion an initial limit of 2920 crimes was set using the rule of thumb that states that outliers can be defined as values that fall outside the range of 3 times the interquartile range above the third quartile value. On closer inspection of the LSOAs that were excluded by the implementation of this limit it was found that a large number were purely residential areas with no obvious special characteristics. Given the nature of the domain there are likely to be some genuine residential areas that have ‘abnormally’ high crime rates, so the cut-off point was increased to the point where a minimal amount of genuine residential areas were excluded (5000 crimes in the period between 2011 and 2016).
+\newline
+
+Figure \ref{fig:ExcludedLSOAsMap} shows the LSOAs that were excluded by this criteria.
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{ExcludedLSOAsMap.png}
+  \caption{LSOAs that were excluded from the analysis}
+  \label{fig:ExcludedLSOAsMap}
+\end{figure}
+\bigskip
+
+%_____________________________________________________________________________________________________
+\section{Analysis} \label{Analysis}
+
+\subsection{House Price Profile}
+
+Figure \ref{fig:HPBandMap} shows the house price profile across London in terms of the average normalised house price of each LSOA. The lighter areas have lower relative prices while the darker areas have higher relative prices. The major patches of lower house prices are in the boroughs of Redbridge, Barking and Dagenham, Newham, Greenwich and Bexley to the east, Enfield and Haringey to the north, Croydon and Merton to the south and Hounslow, Ealing and Hillingdon to the west. The areas of higher house prices are concentrated in central London and extend westward towards Richmond and northwards in the Camden-Hampstead-Highgate corridor.
+
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth]{HPBandMap.png}
+  \caption{House price profile across London}
+  \label{fig:HPBandMap}
+\end{center}
+\end{figure}
+\bigskip
+
+As already mentioned, an individual LSOA can move into different house price bins from one year to the next. Figure \ref{fig:BinMovement} shows that the majority of LSOAs moved between three or four different house price bands during the period between 2011 and 2016.
+\newline
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=80mm, scale=0.5]{BinMovement.png}
+  \caption{Number of house price bins that LSOAs moved between}
+  \label{fig:BinMovement}
+\end{center}
+\end{figure}
+\bigskip
+
+A profile of the size of these house price bin moves can be seen in figure \ref{fig:RangeOfBinMoves}. The majority of LSOAs had a variation in normalised house price of between 0 and 0.2. A very small number of LSOAs have varied over far higher ranges but it is unclear whether this is a genuine pattern or due to small numbers of sales in these LSOAs, allowing abnormally cheap or expensive sales to skew the median
+\newline
+The effect that these price variations has on crime has not been directly analysed in this study and is a possible area for further investigation (see section \ref{Limitations of this Study and Suggestions for Further Analysis}).
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{RangeOfBinMoves.png}
+  \caption{Variation in house price bin for individual LSOAs}
+  \label{fig:RangeOfBinMoves}
+\end{center}
+\end{figure}
+
+\subsection{Relationships between House Price and Different Crime Types} \label{Relationships between House Price and Different Crime Types}
+The current LSOA boundaries were established in 2011 based on the division of areas of approximately equal population but there is some discrepancy in LSOA population based on slight differences at the time of boundary definition and variations in rates of population change since the boundaries were defined. To account for any differences in crime numbers that arise from larger populations in some LSOAs the metric selected for comparison is the crime rate per 1000 residents.
+\newline
+
+The fifteen crime types present in the dataset have analysed for correlation with the bins of normalised house price. Of these fifteen, six have shown a moderate to strong correlation (r-squared value of over 0.5). Of these, four have been found to be negatively correlated with normalised house price (see figure \ref{fig:NegCorr}):
+\begin{itemize}
+\item Anti-social Behaviour (r-squared = -0.85)
+\item Criminal Damage and Arson (r-squared = -0.81)
+\item Robbery (r-squared = -0.70)
+\item Violence and Sexual Offences (r-squared = -0.85)
+\end{itemize}
+\bigskip
+
+Two crime types have been found to be positively correlated with normalised house price (see figure \ref{fig:PosCorr}):
+\begin{itemize}
+\item Bicycle Theft (r-squared = 0.78)
+\item Theft from the Person (r-squared = 0.55)
+\end{itemize}
+
+
+
+%_______quadruple and double figures_______________________________________________________________________________________
+
+\begin{figure}[H]
+\ffigbox
+{%
+  \begin{subfloatrow}[2]
+  {\includegraphics[width=6.5cm]{ASBCorrelation.png}}\hskip10pt%
+  {\includegraphics[width=6.5cm]{CrimDamCorrelation.png}}
+  \end{subfloatrow}\vskip10pt%
+  \begin{subfloatrow}[2]
+  {\includegraphics[width=6.5cm]{RobberyCorrelation.png}}\hskip10pt%
+  {\includegraphics[width=6.5cm]{ViolenceCorrelation.png}}
+  \end{subfloatrow}%
+}
+{\caption{Crime types displaying negative correlations with normalised house price}\label{fig:NegCorr}}
+\end{figure}
+
+\begin{figure}[H]
+\ffigbox
+{%
+  \begin{subfloatrow}[2]
+  {\includegraphics[width=6.5cm]{BikeCorrelation.png}}\hskip10pt%
+  {\includegraphics[width=6.5cm]{TheftFromPerCorrelation.png}}
+  \end{subfloatrow}%
+}
+{\caption{Crime types displaying positive correlations with normalised house price}\label{fig:PosCorr}}
+\end{figure}
+%_____________________________________________________________________________________________________
+
+
+\subsection{Geographical Trends in Crime Rate Variations}
+
+Although the crime types discussed in \ref{Relationships between House Price and Different Crime Types} show similar correlations to normalised house price, when examined in a geographical context the patterns are more varied.
+\newline 
+
+The following figures show the ranking of London's LSOAs for each of these crime types. Red LSOAs are higher ranked, i.e. have higher crime rates, and green LSOAs are lower ranked. Percentage differences in crime rates have been calculated by taking the difference between the average crime rates in the three cheapest and the three most expensive house price bins.
+
+\subsubsection{Anti-social Behaviour}
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{ASBMap.png}
+  \caption{LSOA crime rate ranking for Anti-social Behaviour}
+  \label{fig:ASBMap}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:ASBMap} shows the crime rate ranking of LSOAs for Anti-social Behaviour, which has a rate of 15.5 crimes per 1000 residents across the whole of London and a 93\% higher crime rate in the cheapest LSOAs than in the most expensive.
+\newline 
+
+Anti-social Behaviour is widespread, occurring in 100\% of LSOAs, and the wide distribution of high ranked LSOAs attests to this prevalence. There is some sign of the negative correlation with normalised house price; the Camden-Hampstead-Highgate corridor is mainly populated with lower ranked LSOAs, as is most of Richmond. There are also patches of higher ranked LSOAs in the cheaper areas to the east and west. However most of central London, which is largely in the higher price brackets, is highly ranked. This is possibly due to the relatively high concentration of licensed venues here and the relationship between alcohol and crimes of Anti-social Behaviour.
+\newline
+
+\subsubsection{Bicycle Theft}
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{BikeMap.png}
+  \caption{LSOA crime rate ranking for Bicycle Theft}
+  \label{fig:BikeMap}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:BikeMap} shows the crime rate ranking of LSOAs for Bicycle Theft, which has a rate of 1.1 crimes per 1000 residents across the whole of London and a 211\% higher crime rate in the most expensive LSOAs than in the cheapest.
+\newline
+
+The LSOAs with the highest rates of Bicycle Theft are concentrated around the inner London boroughs and also extend towards Richmond. This is concurrent with the positive correlation between Bicycle Theft and normalised house price and could be due to these areas having a higher concentration of commercial properties as opposed to residential, which may mean that more people lock their bikes in less secure, ad-hoc locations in comparison to their normal practices at home. The correlation with higher property prices may also relate to the quality of bikes present in these areas, i.e. people in more expensive parts of the city ride more expensive (and therefore more desirable) bikes.
+\newline
+
+\subsubsection{Criminal Damage and Arson}
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{CrimDamMap.png}
+  \caption{LSOA crime rate ranking for Criminal Damage and Arson}
+  \label{fig:CrimDamMap}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:CrimDamMap} shows the crime rate ranking of LSOAs for Criminal Damage and Arson, which has a rate of 5.6 crimes per 1000 residents across the whole of London and a 74\% higher crime rate in the cheapest LSOAs than in the most expensive.
+\newline 
+
+The map clearly displays the negative correlation between Criminal Damage and normalised house prices, with the highest ranked LSOAs falling away from the more expensive areas in the centre, north and west, mainly being concentrated around the east end, and less expensive areas slightly out of the centre. This can possibly be explained by the more expensive areas having increased security or can perhaps be attributed to the broken window theory, a criminological school of thought that links visible signs of crime, disorder and dilapidation with an increase in vandalism and a variety of other crimes. Verification of this possible link would require a more detailed understanding of the general state of disrepair of the areas of interest.
+\newline
+
+\subsubsection{Robbery}
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{RobberyMap.png}
+  \caption{LSOA crime rate ranking for Robbery}
+  \label{fig:RobberyMap}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:RobberyMap} shows the crime rate ranking of LSOAs for Robbery, which has a rate of 2.7 crimes per 1000 residents across the whole of London and a 52\% higher crime rate in the cheapest LSOAs than in the most expensive.
+\newline 
+
+LSOAs that rank highly for Robbery are well distributed across central areas as well as the north-west, north-east and south of the city. Expensive areas in Richmond rank low, as do those in the north-east, but apart from these there is not an obvious pattern concurrent with the negative correlation to normalised house price, with the highest concentration of highly ranked LSOAs coming in the medium-high priced Southwark and Lambeth. 
+
+What is perhaps surprising is that, in contrast to other forms of theft examined in this report, the Robbery is more prevalent in less expensive areas. As robbery is defined as an offence where a person uses force to steal and is therefore likely to carry a greater penalty than less aggressive forms of theft, the possible higher security in more expensive areas may act as a greater deterrent to would-be criminals.
+\newline
+
+\subsubsection{Theft from the Person}
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{TheftFromPerMap.png}
+  \caption{LSOA crime rate ranking for Theft from the Person}
+  \label{fig:TheftFromPerMap}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:TheftFromPerMap} shows the crime rate ranking of LSOAs for Theft from the Person, which has a rate of 1.7 crimes per 1000 residents across the whole of London and a 96\% higher crime rate in the most expensive LSOAs than in the cheapest.
+\newline 
+
+Theft from the Person is has a positive correlation with normalised house price and the map shows a clear concentration of high ranked LSOAs in the expensive central areas. What is less in keeping with this correlation is the low ranking of the expensive areas to the north and towards Richmond, which perhaps explain the scattered top end of the graph in figure \ref{fig:PosCorr} and the relatively weak r-squared value of 0.55. It is possible that these quieter, less accessible areas offer fewer opportunities for theft but this relationship would need to be studied further.
+\newline
+
+\subsubsection{Violence and Sexual Offences}
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{ViolenceMap.png}
+  \caption{LSOA crime rate ranking for Violence and Sexual Offences}
+  \label{fig:ViolenceMap}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:ViolenceMap} shows the crime rate ranking of LSOAs for Violence and Sexual Offences, which has a rate of 15.9 crimes per 1000 residents across the whole of London and a 94\% higher crime rate in the cheapest LSOAs than in the most expensive.
+\newline 
+
+While Violence and Sexual Offences occur in 100\% of LSOAs and the highest ranked areas are fairly well distributed around the city, there is a clear trend towards lower crime rate ranks in the Camden-Hampstead-Highgate corridor, Richmond and much of Kensington and Chelsea, evidencing the strong negative correlation between violent crime and normalised house price. As with anti-social behaviour, the link between violence and alcohol consumption may offer a reason for the higher rankings of some of the more central areas. There are also large portions of outer boroughs to the west, south and east that contain high ranked LSOAs. There is a wealth of anecdotal evidence to suggest that this could be related to gang activity but, with the Metropolitan Police estimating last year that less than 1\% of all violent crime in the city could be attributed to gang members, this is unlikely to offer an explanation for such widespread prevalence. Further investigation is needed into the nature of these crimes.
+
+\subsection{Recommendations Based on this Analysis}
+This analysis has shown house price to be correlated to certain types of crime and has highlighted the areas in which these types of crime are most prevalent. With this information it is possible to make certain recommendations on potential means of reducing the incidence rates of these crimes in these areas.
+\newline 
+
+Increasing the public awareness of these crimes in these areas could be a relatively low cost initial step towards reducing crime rates, particularly in the cases of theft related crimes.
+\newline 
+
+Increased provision of secure bike storage facilities in more expensive areas could reduce the incidence of bike thefts.
+\newline 
+
+Increased spending on security in areas of lower house price may contribute to a reduction in Criminal Damage and Arson in these areas.
+\newline 
+
+In order to make more detailed recommendations it would be necessary to obtain more precise information about the specifics of the crimes recorded and the factors that may be causing them.
+\newline 
+
+\subsection{Limitations of this Study and Suggestions for Further Analysis} \label{Limitations of this Study and Suggestions for Further Analysis}
+
+Crime prevention is an inherently complex issue that is affected by a broad range of factors. This study has found a correlation between house price and the crime rate of certain crime types but it should be carefully noted that this does not necessarily imply causation, e.g. it is unlikely that house price is the sole contributing factor to the higher rates of violent crime in less expensive areas of the city. There is likely to be a host of factors at play that may or may not be related to house price. The key limitations of this study come from the lack of information about these factors. 
+
+Most of the proposed explanations rely on the assumption that less expensive areas have a lower level of security and are therefore more prone to certain types of crimes. There is also an assumption that as you move away from the centre areas become more residential and see less pedestrian traffic. While these assumptions seem logical there are likely to be exceptions and it would be helpful to obtain some data verify whether these exceptions match up to atypical patterns in the crime rates. 
+
+Some of the trends between normalised house price and crime types examined in figures \ref{fig:NegCorr} and \ref{fig:PosCorr} display some instability around the higher house price brackets. This may be due to the relatively small number of LSOAs in some of the higher priced bins and could possibly be rectified by redefining the bins to make the distribution of LSOAs more even.
+
+Median house price is likely to be a fairly reliable approximation for the wealth of an area where there are a large number of sales over a relatively small range but for LSOAs where there are very low numbers of house sales in a year or where the variation in the sale price is very wide it may lead to some misleading results.
+\newline
+
+Some areas to consider for future study to build on the findings of this analysis could be:
+\begin{itemize}
+\item Do areas that have seen greater relative increases or decreases in house price also see changes to the types of crime that are present?
+\item Is there a relationship between house price and the outcomes of arrests?
+\item Do areas with greater inequality see higher rates of crime?
+\item Do expensive LSOAs surrounded by cheaper LSOAs see more of certain types?
+\item An expansion of this study to a national level
+\item Does crime have a noticeable effect on the volume and value of house sales?
+\end{itemize}
+
+\newpage
+%_____________________________________________________________________________________________________
+\section{Appendix} \label{Appendix}
+
+\subsection{Data Sources}
+The data used in this study was gathered from various sources and imported into SQL for analysis. As the crime records were made up of almost 100 monthly record files these were imported via an automated foreach loop process in SQL Server Data Tools for Visual Studio. The pther data files were imported via the quick import wizard with the exception of the geographical shape files, which were imported directly into Tableau. The data was sourced from the following locations:
+\newline
+
+\noindent
+\textbf{Crime Records}
+
+Crime records have been taken from the Police data archives. The records used in this study were street arrest records from the Metropolitan and City of London Police forces. The data is available at:
+\newline
+\href{url}{https://data.police.uk/data/archive/ }
+\newline
+
+\noindent
+\textbf{LSOA House Prices}
+
+LSOA house price data has been sourced from the Office for Natitional Statistics. The data is available at:
+\newline
+\href{url}{https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets
+/medianpricepaidbylowerlayersuperoutputareahpssadataset46/current}
+\newline
+
+\noindent
+\textbf{LSOA Populations}
+
+LSOA population data has been sourced from the Office for Natitional Statistics. The data is available at:
+\newline
+\href{url}{https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration
+/populationestimates/datasets/lowersuperoutputareamidyearpopulationestimates}
+\newline
+
+\noindent
+\textbf{Geographical Data}
+
+Geographical data has been sourced from the London Datastore. The data is available at:
+\newline
+\href{url}{https://data.london.gov.uk/dataset/statistical-gis-boundary-files-london}
+\newline
+
+\noindent
+\textbf{Census Data}
+
+Census data has been sourced from the London Datastore. The data is available at:
+\newline
+\href{url}{https://data.london.gov.uk/dataset/lsoa-atlas}
+\newline
+
+\noindent
+\textbf{London Average House Prices}
+
+London average house price data has been sourced from the home.co.uk, an independent compiler of data on UK residential property
+sales. The data is available at:
+\newline
+\href{url}{https://www.home.co.uk/guides/}
+
+\newpage
+\subsection{Dimensional Model}
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{ModelDiagram.png}
+  \caption{Model diagram for the database used in this analysis}
+  \label{fig:ModelDiagram}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:ModelDiagram} shows a diagram of the dimensional model used in this analysis. The central fact table is the record of crimes in London. It contains several foreign keys that reference the primary keys in dimension tables for location, LSOA house prices, LSOA populationdate, outcome of the arrest, crime type and authority. These dimension tables have been enriched to varying extents to facilitate the analysis.
+
+%__Code Snippets___________________________________________________________________________________________________
+\newpage
+\subsection{Code Snippets}
+
+This section will present and describe the SQL code written to set up the tables and perform calculations.
+\newline
+
+\noindent
+\textbf{'Pre-Fact' Table}
+
+The first engineering step was to cleanse the crimes record table. This involved removing extraneous fields, updating empty cell values and limiting the records to the ones that took place in the LSOAs of interest. This was compiled into a 'pre-Fact' Table in advance of linking the relevant fields to the dimension tables.
+\begin{lstlisting}
+SELECT DISTINCT [Crime ID]
+	-- Add a day value to the date to 
+	-- allow date functions to be performed on it
+	,cast(([Month] + '-01') AS date) [Date]
+	,[Reported by]
+	,[Falls within]
+	,Longitude
+	,Latitude
+	,Location
+	,[LSOA code]
+	-- Merge Violent Crime types to account for phase out
+	,CASE
+	 	WHEN [Crime type] = 'Violent Crime' 
+		THEN 'Violence and sexual offences'
+	 	ELSE [Crime type]
+	 END [Crime type]
+	,CASE -- Clean [Last outcome category]
+	 	WHEN [Last outcome category] = ',' OR [Last outcome category] = '' 
+		THEN 'Status update unavailable'
+	 	WHEN [Last outcome category] LIKE '%,%' 
+		THEN replace([Last outcome category],',','')
+	 	ELSE [Last outcome category]
+	 END [Last outcome category]
+INTO crime.preFactTable
+FROM ZRawData.Raw_MetCrimeRecords1
+-- Take only LSOA codes found in London census data to 
+-- restrict the sample to crimes that took place in London
+WHERE [LSOA code] IN ( SELECT DISTINCT Codes 
+	FROM [ZRawData].[Raw_2011Census1]
+	)
+\end{lstlisting}
+\newpage
+
+\noindent
+\textbf{LSOA House Price Table}
+
+The next step was to create the LSOA house price table. First, the table of London average house proices was created:
+\begin{lstlisting}
+-- Build Annual London Average house price table
+IF object_id('Property.LDNAvgHousePrices') IS NOT NULL 
+	BEGIN 
+		DROP table Property.LDNAvgHousePrices
+	END
+go
+
+CREATE table Property.LDNAvgHousePrices
+(PriceID INT IDENTITY(1,1) NOT NULL PRIMARY KEY, [Year] char(4),[AvgPrice] int)
+
+INSERT INTO Property.LDNAvgHousePrices 
+VALUES ('1995',107636)
+INSERT INTO Property.LDNAvgHousePrices 
+VALUES ('1996',108056)
+...
+INSERT INTO Property.LDNAvgHousePrices 
+VALUES ('2017',682965)
+INSERT INTO Property.LDNAvgHousePrices 
+VALUES ('2018',757880)
+\end{lstlisting}
+\bigskip
+
+Next, the raw table containing LSOA median house prices was unpivoted and put into a view:
+\begin{lstlisting}
+
+-- Create unpivoted house prices by LSOA as a view
+
+CREATE VIEW Vw_UnpivotedHousePrices
+AS
+(
+SELECT
+	[Local authority code]
+	,[Local authority name]
+	,[LSOA code]
+	,[LSOA name]
+	,Period
+	,MedianHousePrice
+FROM
+(
+SELECT 
+* 
+FROM [zRawData].[raw_LSOAHousePrices]
+) L
+UNPIVOT
+(
+MedianHousePrice FOR Period IN 
+      ([Year ending Dec 1995]
+      ,[Year ending Mar 1996]
+      ,[Year ending Jun 1996]
+      ...
+      ,[Year ending Dec 2017]
+      ,[Year ending Mar 2018])
+) Up
+)
+
+\end{lstlisting}
+\bigskip
+
+The London average house prices were then joined to the LSOA median house price table to enable the normalisation of the LSOA prices:
+\begin{lstlisting}
+
+IF object_id('Property.LSOAHousePrices') IS NOT NULL 
+	BEGIN 
+		DROP table Property.LSOAHousePrices
+	END
+go
+
+SELECT
+	 H.[LSOA code] LSOACode
+	,H.[LSOA name] LSOAName
+	,right(H.Period,4) [Year]
+	,cast(H.MedianHousePrice AS float) MedianHousePrice
+	,cast(A.AvgPrice AS float) LDNAvgHousePrice
+	-- Divide LSOA median house price by London avg. to normalise
+	,round((cast(H.MedianHousePrice AS float) / A.AvgPrice),3) NormalisedHousePrice
+	,CASE -- Group normalised prices into bins of 0.05
+		WHEN round(cast(H.MedianHousePrice AS float) / A.AvgPrice/5,2)*5 > 1.55 THEN 1.6
+		WHEN round(cast(H.MedianHousePrice AS float) / A.AvgPrice/5,2)*5 < 0.25 THEN 0.25
+		ELSE round(cast(H.MedianHousePrice AS float) / A.AvgPrice/5,2)*5
+	 END NormHPBin5
+	,CASE -- Group normalised prices into bins of 0.1
+		WHEN round(cast(H.MedianHousePrice AS float) / A.AvgPrice,1) > 1.55 THEN 1.6
+		WHEN round(cast(H.MedianHousePrice AS float) / A.AvgPrice,1) <    0.3 THEN 0.3
+		ELSE round(cast(H.MedianHousePrice AS float) / A.AvgPrice,1)
+	 END NormHPBin10
+INTO 
+Property.LSOAHousePrices 
+FROM Vw_UnpivotedHousePrices H
+		left JOIN 
+		[Property].[LDNAvgHousePrices] A
+		ON right(H.Period,4) = A.[Year]
+WHERE Period LIKE '%ending Dec%' -- Choose values for years ending December to get 1 price per year
+	AND [LSOA code] IN ( SELECT DISTINCT Codes 
+	FROM [ZRawData].[Raw_2011Census1]
+	)
+ALTER table Property.LSOAHousePrices
+ADD PriceID int IDENTITY PRIMARY KEY
+go
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{LSOA Population Table}
+
+The LSOA population data was taken from separate source tables for each year. This table was then unpivoted and had a surrogate key column added:
+\begin{lstlisting}
+
+IF object_id('Census.LSOAPopulation ') IS NOT NULL 
+	BEGIN 
+		DROP table Census.LSOAPopulation
+	END
+go
+
+WITH CTE1 
+AS
+(
+SELECT
+	 R11.[Area Codes] [LSOA Code]
+	,R11.[All Ages] [2011]
+	,R12.[All Ages] [2012]
+	,R13.[All Ages] [2013]
+	,R14.[All Ages] [2014]
+	,R15.[All Ages] [2015]
+	,R16.[All Ages] [2016]
+FROM ZRawData.Raw_2011Pop R11
+INNER JOIN ZRawData.Raw_2012Pop R12
+ON R11.[Area Codes] = R12.[Area Codes]
+INNER JOIN ZRawData.Raw_2013Pop R13
+ON R12.[Area Codes] = R13.[Area Codes]
+INNER JOIN ZRawData.Raw_2014Pop R14
+ON R13.[Area Codes] = R14.[Area Codes]
+INNER JOIN ZRawData.Raw_2015Pop R15
+ON R14.[Area Codes] = R15.[Area Codes]
+INNER JOIN ZRawData.Raw_2016Pop R16
+ON R15.[Area Codes] = R16.[Area Codes]
+)
+
+SELECT 
+	 -- Surrogate key PopID
+	 row_number() OVER (ORDER BY [LSOA Code]) PopID
+	,[LSOA Code] LSOACode
+	,[Year]
+	,[Population]
+INTO 
+Census.LSOAPopulation 
+FROM ( 
+SELECT 
+	 * 
+FROM CTE1 ) P 
+UNPIVOT 
+( [Population] FOR [Year] IN ([2011],[2012],[2013],
+									  [2014],[2015],[2016]) ) Up
+
+-- Make PopID not null to allow it to be used as PK
+ALTER TABLE Census.LSOAPopulation ALTER COLUMN PopID INTEGER NOT NULL
+
+-- Make PopID PK
+ALTER TABLE Census.LSOAPopulation   
+ADD CONSTRAINT PK_PopID PRIMARY KEY CLUSTERED (PopID);  
+GO 
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{DimDate Table}
+
+The DimDate table was created using a stored procedure that generated a table with dates as the first day of each month over a defined period:
+\begin{lstlisting}
+
+CREATE PROC Usp_BuildDimDate
+-- Stored proc to create date table with incrementally increasing 
+-- values from a defined start point
+AS 
+	IF object_id('DimDate') IS NOT NULL 
+		BEGIN 
+			DROP table DimDate
+		END  
+
+;WITH Cte 
+AS 
+( --anchor table sets start date
+SELECT cast('1992-12-01' AS date) AS dt
+	,year(cast('1992-12-01' AS date)) Yr
+	,month(cast('1992-12-01' AS date)) Mnth
+	,CASE 
+		WHEN month(cast('1992-12-01' AS date)) IN (12,1,2) THEN 'Winter' 
+		WHEN month(cast('1992-12-01' AS date)) IN (3,4,5) THEN 'Spring' 
+		WHEN month(cast('1992-12-01' AS date)) IN (6,7,8) THEN 'Summer' 
+		ELSE 'Autumn' 
+	 END Season 
+UNION ALL
+-- Unioned table references Cte and adds new dates in 1 month increments
+SELECT 
+	 dateadd(Mm,1,dt)
+	,year(dateadd(Mm,1,dt))
+	,month(dateadd(Mm,1,dt))
+	,CASE 
+		WHEN month(dateadd(Dd,1,dt)) IN (12,1,2) THEN 'Winter' 
+		WHEN month(dateadd(Dd,1,dt)) IN (3,4,5) THEN 'Spring' 
+		WHEN month(dateadd(Dd,1,dt)) IN (6,7,8) THEN 'Summer' 
+		ELSE 'Autumn' 
+	 END Season
+FROM Cte 
+WHERE dateadd(Mm,1,dt) < dateadd(Yy,1,getdate()) 
+)  
+
+SELECT
+ * 
+INTO DimDate 
+FROM Cte OPTION (Maxrecursion 0)
+go
+
+EXEC Usp_BuildDimDate;
+
+ALTER table DimDate
+ALTER COLUMN dt date NOT NULL ;
+
+ALTER table DimDate
+ADD CONSTRAINT PK_DimDate_dt PRIMARY KEY (dt)
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{DimLocation Table}
+
+The DimLocation table was created using LSOA codes taken from the London Census Data and enriching them with details about the wider areas that they sit in:
+\begin{lstlisting}
+
+IF object_id('raw_LSOAsofInterest') IS NOT NULL 
+	BEGIN 
+		DROP table Raw_LSOAsofInterest
+	END
+GO
+
+SELECT DISTINCT -- Select unique LSOAs from London census table into new table to speed up queries
+	 [Codes] LSOACode
+	,[Names] LSOAName
+INTO Raw_LSOAsofInterest 
+FROM zRawData.raw_2011Census1
+GO
+
+
+IF object_id('DimLocation') IS NOT NULL 
+	BEGIN 
+		DROP table DimLocation
+	END
+GO
+
+SELECT -- Set up DimLocation, enriching with LSOA Name, Borough and Shape Code
+	 L.[LSOACode] LSOACode
+	,L.[LSOAName] LSOAName
+	,G.MSOA11CD MSOACode
+	,G.MSOA11NM MSOAName
+	,substring(L.[LSOAName],1,charindex('0',L.[LSOAName])-1) Borough
+INTO DimLocation 
+FROM Raw_LSOAsofInterest L -- 4832 rows
+INNER JOIN Dbo.LSOA_2011_London_gen_MHW G -- 4832 rows
+ON L.[LSOACode] = G.LSOA11CD;
+
+-- Make LSOACode not null to allow it to be used as PK
+ALTER table Dimlocation
+ALTER COLUMN LSOACode varchar(500) NOT NULL;
+
+-- Make LSOACode PK
+ALTER table Dimlocation
+ADD CONSTRAINT PK_DimLocation_LSOACode PRIMARY KEY (LSOACode)
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{DimAuthority, DimCrimeType and DimOutcome Tables}
+
+The remaining dimension tables, for Authority, Crime Type and Outcome were created from the information in the 'Pre-fact' table and given surrogate keys:
+\begin{lstlisting}
+
+-- Build Authority dimension table
+IF object_id('DimAuthority') IS NOT NULL 
+	BEGIN 
+		DROP table DimAuthority
+	END
+go
+
+SELECT DISTINCT 
+	 isnull(NULLIF([Reported by],''),'Unknown') Authority
+INTO DimAuthority 
+FROM Crime.PreFactTable
+go
+
+ALTER table DimAuthority
+ADD AuthorityID tinyint IDENTITY PRIMARY KEY
+go
+
+
+-- Build CrimeType dimension table
+IF object_id('DimCrimeType') IS NOT NULL 
+	BEGIN 
+		DROP table DimCrimeType
+	END
+go
+
+SELECT DISTINCT 
+	 [Crime type] CrimeType
+INTO DimCrimeType 
+FROM Crime.PreFactTable
+go
+
+ALTER table DimCrimeType
+ADD CrimeTypeID tinyint IDENTITY PRIMARY KEY
+go
+
+
+-- Build Outcome dimension table
+IF object_id('DimOutcome') IS NOT NULL 
+	BEGIN 
+		DROP table DimOutcome
+	END
+go
+
+SELECT DISTINCT 
+	 [Last outcome category] Outcome
+INTO DimOutcome 
+FROM Crime.PreFactTable
+go
+
+ALTER table DimOutcome
+ADD OutcomeID tinyint IDENTITY PRIMARY KEY
+go
+
+ALTER table DimOutcome
+ADD CONSTRAINT PK_DimOutcome_OutcomeID PRIMARY KEY (OutcomeID)
+go
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{Fact Table}
+
+The fact table was created by taking the 'Pre-fact' table and replacing its string values with the primary keys from each of the dimension tables. The dimension table primary keys were then designated as foreign keys in the fact table:
+\begin{lstlisting}
+
+-- Build FactTable
+IF object_id('FactTable') IS NOT NULL 
+	BEGIN 
+		DROP table FactTable
+	END
+go
+
+SELECT 
+	 F.[Crime ID] CrimeID
+	,F.[Date]
+	,A.AuthorityID ReportedBy
+	,A2.AuthorityID FallsWithin
+	,F.[Longitude]
+	,F.[Latitude]
+	,F.[Location]
+	,F.[LSOA code] LSOACode
+	,C.CrimeTypeID
+	,O.OutcomeID
+	,pop.PopID
+	,HP.PriceID
+INTO [FactTable] 
+FROM [Crime].[PreFactTable] F -- 6571915rows
+--Join to dimension tables to replace text information with numerical foreign keys
+INNER JOIN DimAuthority A
+	ON isnull(NULLIF(F.[Reported by],''),'Unknown') = A.Authority -- 6571915rows
+INNER JOIN DimAuthority A2
+	ON F.[Falls within] = A2.Authority -- 6571915rows
+INNER JOIN DimCrimeType C
+	ON F.[Crime type] = C.CrimeType -- 6571915rows
+INNER JOIN DimOutcome O
+	ON F.[Last outcome category] = O.Outcome -- 6571915rows
+LEFT JOIN census.LSOAPopulation pop
+	ON YEAR(f.Date) = pop.Year -- 6571915rows
+	AND f.[LSOA code] = pop.LSOACode
+LEFT JOIN property.LSOAHousePrices HP
+	ON YEAR(f.Date) = HP.Year -- 6571915rows
+	AND f.[LSOA code] = HP.LSOACode
+go
+ALTER table [FactTable]
+ADD CrimeRecordID int IDENTITY PRIMARY KEY
+
+ALTER table FactTable
+ADD CONSTRAINT FK_DimAuthority_Authority FOREIGN KEY (ReportedBy) 
+REFERENCES DimAuthority (AuthorityID)
+go
+
+ALTER table FactTable
+ADD CONSTRAINT FK_DimDate_Date FOREIGN KEY (date) 
+REFERENCES DimDate (Dt)
+
+ALTER table FactTable
+ADD CONSTRAINT FK_DimCrimeType_CrimeType FOREIGN KEY (CrimeTypeID) 
+REFERENCES DimCrimeType (CrimeTypeID)
+
+ALTER table FactTable
+ADD CONSTRAINT FK_DimOutcome_OutcomeID FOREIGN KEY (OutcomeID) 
+REFERENCES DimOutcome (OutcomeID)
+
+ALTER table FactTable
+ADD CONSTRAINT FK_DimLocation_LSOACode FOREIGN KEY (LSOACode) 
+REFERENCES DimLocation (LSOACode)
+
+ALTER table FactTable
+ADD CONSTRAINT FK_Population_PopID FOREIGN KEY (PopID) 
+REFERENCES Census.LSOAPopulation (PopID)
+
+ALTER table FactTable
+ADD CONSTRAINT FK_LSOAHousePrices_PriceID FOREIGN KEY (PriceID) 
+REFERENCES [property].[LSOAHousePrices] (PriceID)
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{House Price Bin Movement Calculations}
+
+Most of the calculations and aggregations fr this anlysis were performed in Tableau but occasionally it proved much simpler to perform calculations in SQL and import the resulting data to Tableau. The information on the number of house price bins that the LSOAs moved between was one such case:
+\begin{lstlisting}
+
+;WITH cte
+AS
+(
+SELECT DISTINCT 
+	 LSOACode
+	,NormHPBin5
+FROM Property.LSOAHousePrices
+WHERE year BETWEEN 2011 AND 2016
+)
+,
+cte2
+AS
+(
+SELECT DISTINCT 
+	 LSOACode 
+	,count(*) OVER (Partition BY LSOACode) NumberOfBins
+	,min(NormHPBin5) OVER (Partition BY LSOACode) MinBin
+	,max(NormHPBin5) OVER (Partition BY LSOACode) MaxBin
+	,round(max(NormHPBin5) OVER (Partition BY LSOACode)
+		- min(NormHPBin5) OVER (Partition BY LSOACode),2) RangeOfBinMovement
+FROM cte
+)
+
+SELECT
+	 *
+INTO HPBinMovement 
+FROM cte2
+
+\end{lstlisting}
+\bigskip
+
+\noindent
+\textbf{Crime Numbers Outliers Calculations}
+
+The following code was used to determine which LSOAs shouls be excluded form the analysis based on the outlier formula Limit = 3 x Interquartile Range above the third Quartile:
+\begin{lstlisting}
+
+;WITH CTE1
+AS
+(
+SELECT DISTINCT 
+	 LSOACode
+	,count(*) OVER (PARTITION BY LSOACode) CrimesInLSOA
+FROM FactTable 
+WHERE year(date) BETWEEN 2011 AND 2016
+)
+,
+CTE2
+AS
+(
+SELECT
+	 *
+	,avg(CrimesInLSOA) OVER (Partition BY (SELECT 'd')) AverageLSOACrimes
+	,round(CrimesInLSOA / cast(avg(CrimesInLSOA) OVER (Partition BY (SELECT 'd')) AS float), 2) RatioToAvg
+	,sum(CrimesInLSOA) OVER (Partition BY (SELECT 'd')) TotalCrimes
+	,round(CrimesInLSOA / cast(sum(CrimesInLSOA) OVER (Partition BY (SELECT 'd')) AS float) * 100, 2) [%OfTotalCrimes]
+	,PERCENTILE_CONT(0.25) Within GROUP (ORDER BY CrimesInLSOA) OVER () [Q1]
+	,PERCENTILE_CONT(0.5) Within GROUP (ORDER BY CrimesInLSOA) OVER () [Q2]
+	,PERCENTILE_CONT(0.75) Within GROUP (ORDER BY CrimesInLSOA) OVER () [Q3]
+	,PERCENTILE_CONT(0.75) Within GROUP (ORDER BY CrimesInLSOA) OVER () - PERCENTILE_CONT(0.25) Within GROUP (ORDER BY CrimesInLSOA) OVER () IQRange
+FROM CTE1
+)
+
+SELECT -- Identify outliers as LSOAs containing more than 1.5xIQR above the third quartile (Q3 + 1.5 * IQR)
+	 LSOACode
+	,CrimesInLSOA
+	,RatioToAvg
+	,Q3 + 1.5*IQRange OutlierLimit
+	,Q3 + 3*IQRange LooserOutlierLimit
+	,CASE 
+		WHEN CrimesInLSOA > Q3 + 1.5*IQRange THEN 'Exclude Outlier'
+		ELSE 'Include'
+	 END [Include/Exclude]
+FROM CTE2 
+ORDER BY CrimesInLSOA DESC
+
+\end{lstlisting}
+\bigskip
+
+
+\subsection{Data Loaded into Tableau }
+
+\begin{figure}[H]
+\begin{center}
+  \includegraphics[width=\linewidth, scale=0.5]{TableauJoin.png}
+  \caption{Main data loaded into tableau and joined}
+  \label{fig:TableauJoin}
+\end{center}
+\end{figure}
+Figure \ref{fig:TableauJoin} shows the joining of the main tables loaded into tableau. Additional data sources for the geographical data were loaded as separate data sources and merged.
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
